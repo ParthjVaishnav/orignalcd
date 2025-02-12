@@ -85,7 +85,6 @@
                 "
             >
         </div>
-
         <div style="margin-bottom: 15px;">
             <label for="created_at" style="font-weight: bold; display: block; margin-bottom: 5px;">Created At:</label>
             <input 
@@ -141,27 +140,79 @@
         </button>
     </form>
 
-    <!-- Displaying student data in a list -->
-    <h2 style="margin-top: 30px; color: #555;">Student Data List</h2>
-    <ul 
+    <!-- Form for sending test mail -->
+    <h2 style="margin-top: 30px; color: #007BFF;">Send Test Mail</h2>
+    <form 
+        action="send-test-mail" 
+        method="post" 
         style="
-            list-style-type: none;
-            padding: 0;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 600px;
         "
     >
-        <li 
+        @csrf
+        <div style="margin-bottom: 15px;">
+            <label for="from_email" style="font-weight: bold; display: block; margin-bottom: 5px;">From Email:</label>
+            <input 
+                type="email" 
+                id="from_email" 
+                name="from_email" 
+                required 
+                placeholder="Enter sender email"
+                style="
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 14px;
+                "
+            >
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="to_email" style="font-weight: bold; display: block; margin-bottom: 5px;">To Email:</label>
+            <input 
+                type="email" 
+                id="to_email" 
+                name="to_email" 
+                required 
+                placeholder="Enter recipient email"
+                style="
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 14px;
+                "
+            >
+        </div>
+ 
+
+        
+
+        <button 
+            type="submit" 
             style="
+                width: 100%;
                 padding: 10px;
-                margin: 5px 0;
-                background-color: #f8f9fa;
-                border: 1px solid #ddd;
+                background-color: #007BFF;
+                color: white;
+                font-size: 16px;
+                font-weight: bold;
+                border: none;
                 border-radius: 5px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+                transition: background-color 0.3s;
             "
+            onmouseover="this.style.backgroundColor='#0056b3'"
+            onmouseout="this.style.backgroundColor='#007BFF'"
         >
-            Example student data goes here
-        </li>
-    </ul>
+            Send Test Mail
+        </button>
+        
+    </form>
 </div>
