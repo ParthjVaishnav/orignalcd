@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -20,14 +19,18 @@ class OtpController extends Controller
         }
 
         try {
-            $otp = rand(100000, 999999);
+            $otp = rand(100000, 999999); // Generate OTP
 
             Mail::raw("Your OTP is: $otp", function ($message) use ($recipient) {
                 $message->to($recipient)
                         ->subject('Your OTP Code');
             });
 
-            return response()->json(['success' => true, 'message' => 'OTP sent successfully!']);
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP sent successfully!',
+                'otp' => $otp // Return OTP for frontend verification
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Failed to send OTP.']);
         }

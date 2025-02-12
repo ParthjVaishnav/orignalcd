@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-        }
         body {
             display: flex;
             justify-content: center;
@@ -25,57 +21,8 @@
             border-radius: 10px;
             box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 350px;
+            width: 400px;
             animation: fadeIn 1s ease-in-out;
-        }
-        h2 {
-            margin-bottom: 15px;
-            color: #6D5BBA;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        input:focus {
-            border-color: #6D5BBA;
-            box-shadow: 0px 0px 5px rgba(109, 91, 186, 0.5);
-            outline: none;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #6D5BBA;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #5740a7;
-        }
-        .message {
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .success {
-            color: green;
-        }
-        .error {
-            color: red;
-        }
-        .link {
-            margin-top: 15px;
-            display: block;
-            color: #6D5BBA;
-            text-decoration: none;
-        }
-        .link:hover {
-            text-decoration: underline;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
@@ -84,36 +31,40 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Register</h2>
-
+    <div class="container p-4 shadow-lg">
+        <h2 class="mb-3 text-primary">Register</h2>
         <form action="{{ route('register') }}" method="POST">
             @csrf
-            <input type="text" name="name" placeholder="Name" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <button type="button" onclick="sendOtp()">Send OTP</button>
-            <small id="otpMessage" class="message"></small>
-
-            <input type="text" name="otp" placeholder="Enter OTP" required disabled>
-            <input type="password" name="password" placeholder="Password" required disabled>
-            <input type="password" name="password_confirmation" placeholder="Confirm Password" required disabled>
-            <button type="submit" disabled>Register</button>
+            <div class="mb-3">
+                <input type="text" name="name" class="form-control" placeholder="Name" required>
+            </div>
+            <div class="mb-3">
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="mb-3 d-flex gap-2">
+                <input type="text" name="otp" class="form-control" placeholder="Enter OTP" required disabled>
+                <button type="button" class="btn btn-primary" onclick="sendOtp()">Send OTP</button>
+                <button type="button" class="btn btn-success" onclick="verifyOtp()">Verify OTP</button>
+            </div>
+            <small id="otpMessage" class="d-block text-center"></small>
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control" placeholder="Password" required disabled>
+            </div>
+            <div class="mb-3">
+                <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required disabled>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" disabled>Register</button>
         </form>
-
-        <a href="{{ route('login') }}" class="link">Already have an account? Login</a>
+        <a href="{{ route('login') }}" class="d-block mt-3">Already have an account? Login</a>
     </div>
-
     <script>
+        let generatedOtp = null;
         function sendOtp() {
             let email = document.querySelector('input[name="email"]').value;
             let otpInput = document.querySelector('input[name="otp"]');
-            let passwordInputs = document.querySelectorAll('input[type="password"]');
-            let registerButton = document.querySelector('button[type="submit"]');
             let otpMessage = document.getElementById('otpMessage');
 
             otpMessage.innerText = "Sending OTP...";
-            otpMessage.className = "message";
-
             fetch('/send-otp', {
                 method: 'POST',
                 headers: {
@@ -125,22 +76,36 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    generatedOtp = data.otp;
                     otpMessage.innerText = "OTP Sent Successfully!";
-                    otpMessage.className = "message success";
+                    otpMessage.className = "text-success";
                     otpInput.disabled = false;
-                    passwordInputs.forEach(input => input.disabled = false);
-                    registerButton.disabled = false;
                 } else {
                     otpMessage.innerText = "Failed to send OTP. Try again.";
-                    otpMessage.className = "message error";
+                    otpMessage.className = "text-danger";
                 }
             })
-            .catch(error => {
+            .catch(() => {
                 otpMessage.innerText = "Something went wrong. Please try again.";
-                otpMessage.className = "message error";
+                otpMessage.className = "text-danger";
             });
         }
-    </script>
+        function verifyOtp() {
+            let enteredOtp = document.querySelector('input[name="otp"]').value;
+            let passwordInputs = document.querySelectorAll('input[type="password"]');
+            let registerButton = document.querySelector('button[type="submit"]');
+            let otpMessage = document.getElementById('otpMessage');
 
+            if (enteredOtp == generatedOtp) {
+                otpMessage.innerText = "OTP Verified Successfully!";
+                otpMessage.className = "text-success";
+                passwordInputs.forEach(input => input.disabled = false);
+                registerButton.disabled = false;
+            } else {
+                otpMessage.innerText = "Invalid OTP. Please try again.";
+                otpMessage.className = "text-danger";
+            }
+        }
+    </script>
 </body>
 </html>
