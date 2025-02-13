@@ -11,18 +11,20 @@ class Studentcontroller extends Controller
 {
     // To push data into the database
     public function getinfo(Request $request)
-    {
-        $student = new Student();
-        $student->name = $request->name;
-        $student->email = $request->email;
-        $student->phone = $request->phone;
-        $student->address = $request->address;
-        $student->save();
+{
+    $student = new Student();
+    $student->name = $request->name;
+    $student->email = $request->email;
+    $student->phone = $request->phone;
+    $student->address = $request->address;
+    $student->password = bcrypt('defaultpassword'); // Set a default password
 
-        if ($student) {
-            return redirect('show-data');
-        }
+    $student->save();
+
+    if ($student) {
+        return redirect('show-data');
     }
+}
 
     // To display data on the UI
     public function showData()
@@ -49,7 +51,7 @@ class Studentcontroller extends Controller
     public function editStudent(Request $request, $id)
     {
         $student = Student::find($id);
-        
+
         if (!$student) {
             return redirect('show-data')->with('error', 'Student not found');
         }
@@ -58,7 +60,8 @@ class Studentcontroller extends Controller
         $student->email = $request->email;
         $student->phone = $request->phone;
         $student->address = $request->address;
-        
+
+
         $student->save();
 
         return redirect('show-data')->with('success', 'Student updated successfully');
