@@ -1,41 +1,44 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Student;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function showRegisterForm()
+    // Show Register Page
+    public function showRegister()
     {
         return view('register');
     }
 
+    // Handle Registration
     public function register(Request $request)
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:students',
+            'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $student = new Student();
-        $student->name = $request->name;
-        $student->email = $request->email;
-        $student->password = Hash::make($request->password);
-        $student->save();
-        
-        return redirect('/login')->with('success', 'Registration successful. Please log in.');
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->route('login')->with('success', 'Registration successful. Please log in.');
     }
 
-    public function showLoginForm()
+    // Show Login Page
+    public function showLogin()
     {
         return view('login');
     }
 
+    // Handle Login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -43,17 +46,22 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) { // Authentication check
-            return view('add-data'); // Redirecting to /add-data after login
-        } 
-        else {
-            return back()->withErrors(['email' => 'Invalid credentials']);
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate(); // Secure session management
+            return redirect()->intended('add-data');
         }
+
+        return back()->withErrors(['email' => 'Invalid login credentials.'])->withInput();
     }
 
-    public function logout()
+    // Logout and Redirect to Register Page
+    public function logout(Request $request)
     {
         Auth::logout();
-        return redirect('/login');
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('register');
     }
 }
